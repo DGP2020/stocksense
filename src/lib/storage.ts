@@ -22,7 +22,7 @@ interface DBData {
   operations: Operation[];
   moves: StockMove[];
   users: User[];
-  otpStore: Record<string, { code: string; expiresAt: number }>;
+  otpStore: Record<string, { code: string; expiresAt: number; attempts?: number }>;
 }
 
 const DATA_DIR = path.join(process.cwd(), ".data");
@@ -803,23 +803,39 @@ class StorageEngine {
     this.data.otpStore[email.toLowerCase()] = {
       code,
       expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
+      attempts: 0,
     };
     this.saveData();
     return code;
   }
 
   public verifyOTPAndResetPassword(email: string, code: string, newPassword?: string): boolean {
-    const entry = this.data.otpStore[email.toLowerCase()];
+    const normalized = email.toLowerCase();
+    const entry = this.data.otpStore[normalized];
     if (!entry) return false;
+
+    // Check expiry
     if (Date.now() > entry.expiresAt) {
-      delete this.data.otpStore[email.toLowerCase()];
+      delete this.data.otpStore[normalized];
       this.saveData();
       return false;
     }
-    if (entry.code !== code) return false;
 
-    // Reset successful
-    delete this.data.otpStore[email.toLowerCase()];
+    // Increment and check attempts (limit to max 5 failed attempts)
+    entry.attempts = (entry.attempts || 0) + 1;
+    if (entry.attempts > 5) {
+      delete this.data.otpStore[normalized];
+      this.saveData();
+      return false;
+    }
+
+    if (entry.code !== code) {
+      this.saveData();
+      return false;
+    }
+
+    // Reset successful: immediately consume OTP to prevent replay attacks
+    delete this.data.otpStore[normalized];
     this.saveData();
     return true;
   }
