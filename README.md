@@ -16,7 +16,7 @@ To complete all requirements within an 8-hour sprint, a unified full-stack archi
 
 ---
 
-## 👥 Target Users
+##  Target Users
 
 * **Inventory Managers**: Manage incoming and outgoing stock, reorder rules, and warehouse configurations.
 * **Warehouse Staff**: Execute internal transfers, item picking, packing, shelving, and physical counting.
@@ -56,7 +56,7 @@ To complete all requirements within an 8-hour sprint, a unified full-stack archi
 
 ---
 
-## 🗄️ Database Schema Blueprint
+##  Database Schema Blueprint
 
 ```prisma
 datasource db {
