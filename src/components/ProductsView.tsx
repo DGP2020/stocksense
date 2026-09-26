@@ -11,7 +11,6 @@ import {
   SlidersHorizontal,
   ChevronRight,
   X,
-  Check,
   Building,
 } from "lucide-react";
 import { Product, Location } from "@/types";
@@ -105,39 +104,37 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Top Action Bar */}
+      {/* Top Header & Action */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-            <Package className="w-5 h-5 text-purple-400" />
-            <span>Product Catalog & Reordering Rules</span>
+          <h2 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+            <span>Products & Reorder Rules</span>
           </h2>
-          <p className="text-xs text-slate-400">
-            Manage SKU codes, unit of measures, min stock thresholds, and location availability breakdowns.
+          <p className="text-xs text-gray-500 mt-0.5">
+            Manage SKU specifications, UoMs, minimum stock reordering thresholds, and warehouse quants.
           </p>
         </div>
 
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-lg shadow-purple-900/30 transition-all hover:scale-105 active:scale-95"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0FA974] hover:bg-[#0d9264] text-white text-xs font-semibold shadow-sm transition-all hover:scale-105 active:scale-95"
         >
           <Plus className="w-4 h-4" />
-          <span>New Product</span>
+          <span>Add New Product</span>
         </button>
       </div>
 
-      {/* Filters and Category Pills */}
+      {/* Filter Row: Category Pills & Search */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-        {/* Category Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 selectedCategory === cat
-                  ? "bg-purple-600 text-white shadow-md shadow-purple-950/40"
-                  : "bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 hover:text-white"
+                  ? "bg-[#0FA974] text-white shadow-sm"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
               {cat === "ALL" ? "All Categories" : cat}
@@ -145,35 +142,34 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
           ))}
         </div>
 
-        {/* Search */}
         <div className="relative w-full md:w-72">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             placeholder="Search by name or SKU..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-purple-500"
+            className="w-full pl-9 pr-4 py-1.5 bg-white border border-gray-200/80 rounded-xl text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0FA974]/20 focus:border-[#0FA974]"
           />
         </div>
       </div>
 
-      {/* Products Table */}
-      <div className="rounded-xl bg-slate-900 border border-slate-800 overflow-hidden shadow-xl">
+      {/* Clean White Table Card */}
+      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-slate-800 bg-slate-950/60 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+              <tr className="border-b border-gray-100 bg-gray-50/50 text-gray-400 font-semibold uppercase tracking-wider text-[10px]">
                 <th className="py-3 px-4">Product Info</th>
                 <th className="py-3 px-4">SKU / Code</th>
                 <th className="py-3 px-4">Category</th>
                 <th className="py-3 px-4">Total Stock</th>
                 <th className="py-3 px-4">Reordering Rule</th>
-                <th className="py-3 px-4">Location Breakdown</th>
+                <th className="py-3 px-4">Location Availability</th>
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/80 text-slate-200">
+            <tbody className="divide-y divide-gray-100 text-gray-700">
               {filteredProducts.map((p) => {
                 const total = p.totalStock ?? 0;
                 const isOutOfStock = total <= 0;
@@ -182,29 +178,29 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
 
                 return (
                   <React.Fragment key={p.id}>
-                    <tr className="hover:bg-slate-800/40 transition-colors group">
+                    <tr className="hover:bg-gray-50/60 transition-colors group">
                       {/* Name & Description */}
                       <td className="py-3 px-4">
                         <div>
-                          <p className="font-semibold text-white group-hover:text-purple-300 transition-colors">
+                          <p className="font-semibold text-gray-900 group-hover:text-[#0FA974] transition-colors">
                             {p.name}
                           </p>
                           {p.description && (
-                            <p className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">{p.description}</p>
+                            <p className="text-[11px] text-gray-400 line-clamp-1 mt-0.5">{p.description}</p>
                           )}
                         </div>
                       </td>
 
                       {/* SKU */}
-                      <td className="py-3 px-4 font-mono font-medium text-slate-300 whitespace-nowrap">
-                        <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">
+                      <td className="py-3 px-4 font-mono font-medium text-gray-600 whitespace-nowrap">
+                        <span className="px-2 py-0.5 rounded-lg bg-gray-100 text-gray-700 text-[11px] font-semibold">
                           {p.sku}
                         </span>
                       </td>
 
                       {/* Category */}
                       <td className="py-3 px-4 whitespace-nowrap">
-                        <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-800 text-slate-300 border border-slate-700">
+                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-600">
                           {p.category}
                         </span>
                       </td>
@@ -215,21 +211,21 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                           <span
                             className={`text-sm font-bold ${
                               isOutOfStock
-                                ? "text-rose-400"
+                                ? "text-rose-600"
                                 : isLowStock
-                                ? "text-amber-400"
-                                : "text-emerald-400"
+                                ? "text-amber-600"
+                                : "text-gray-900"
                             }`}
                           >
                             {total} {p.uom}
                           </span>
                           {isOutOfStock && (
-                            <span className="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[10px] font-semibold">
+                            <span className="px-2 py-0.5 rounded-full bg-[#FEECEC] text-[#DC2626] text-[10px] font-semibold">
                               Out of Stock
                             </span>
                           )}
                           {isLowStock && (
-                            <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-semibold flex items-center gap-1">
+                            <span className="px-2 py-0.5 rounded-full bg-[#FEF7E6] text-[#D97706] text-[10px] font-semibold flex items-center gap-1">
                               <AlertTriangle className="w-3 h-3" />
                               <span>Low Stock</span>
                             </span>
@@ -239,10 +235,10 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
 
                       {/* Reordering Rule */}
                       <td className="py-3 px-4 whitespace-nowrap">
-                        <div className="flex items-center gap-1.5 text-slate-300">
+                        <div className="flex items-center gap-1.5 text-gray-500">
                           <span>Min:</span>
-                          <span className="font-mono font-bold text-white">{p.minStock}</span>
-                          <span className="text-slate-400">{p.uom}</span>
+                          <span className="font-mono font-bold text-gray-800">{p.minStock}</span>
+                          <span className="text-gray-400">{p.uom}</span>
                         </div>
                       </td>
 
@@ -250,7 +246,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                       <td className="py-3 px-4">
                         <button
                           onClick={() => setExpandedProductId(isExpanded ? null : p.id)}
-                          className="flex items-center gap-1.5 text-[11px] text-purple-400 hover:text-purple-300 font-medium py-1 px-2 rounded hover:bg-slate-800 transition-colors"
+                          className="flex items-center gap-1.5 text-[11px] text-[#0FA974] hover:text-[#0d9264] font-medium py-1 px-2 rounded-lg hover:bg-emerald-50 transition-colors"
                         >
                           <Building className="w-3.5 h-3.5" />
                           <span>
@@ -268,14 +264,14 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                           <button
                             onClick={() => onOpenAdjustmentForProduct(p)}
                             title="Physical Count Inventory Adjustment"
-                            className="p-1.5 rounded-lg bg-slate-800 hover:bg-amber-500/20 text-slate-300 hover:text-amber-300 border border-slate-700 hover:border-amber-500/30 transition-all"
+                            className="p-1.5 rounded-lg bg-gray-50 hover:bg-amber-50 text-gray-500 hover:text-amber-600 border border-gray-200/80 transition-all"
                           >
                             <SlidersHorizontal className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => setEditingProduct(p)}
                             title="Edit Product & Reorder Rules"
-                            className="p-1.5 rounded-lg bg-slate-800 hover:bg-purple-500/20 text-slate-300 hover:text-purple-300 border border-slate-700 hover:border-purple-500/30 transition-all"
+                            className="p-1.5 rounded-lg bg-gray-50 hover:bg-emerald-50 text-gray-500 hover:text-[#0FA974] border border-gray-200/80 transition-all"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
@@ -285,11 +281,11 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
 
                     {/* Expanded Location Breakdown Drawer */}
                     {isExpanded && (
-                      <tr className="bg-slate-950/80 border-b border-slate-800">
+                      <tr className="bg-gray-50/70 border-b border-gray-100">
                         <td colSpan={7} className="py-3 px-6">
-                          <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-2">
-                            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                              <Layers className="w-3.5 h-3.5 text-purple-400" />
+                          <div className="p-4 rounded-xl bg-white border border-gray-200/80 space-y-2">
+                            <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                              <Layers className="w-3.5 h-3.5 text-[#0FA974]" />
                               <span>Stock Availability per Location ({p.name})</span>
                             </p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
@@ -297,19 +293,19 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                                 p.quants.map((q, idx) => (
                                   <div
                                     key={idx}
-                                    className="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700 flex items-center justify-between"
+                                    className="p-2.5 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-between"
                                   >
                                     <div>
-                                      <p className="text-xs font-medium text-white">{q.locationName}</p>
-                                      <p className="text-[10px] text-slate-400">{q.warehouseName}</p>
+                                      <p className="text-xs font-medium text-gray-900">{q.locationName}</p>
+                                      <p className="text-[10px] text-gray-400">{q.warehouseName}</p>
                                     </div>
-                                    <span className="font-mono font-bold text-xs text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">
+                                    <span className="font-mono font-bold text-xs text-[#0FA974] bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-100">
                                       {q.quantity} {p.uom}
                                     </span>
                                   </div>
                                 ))
                               ) : (
-                                <p className="text-xs text-slate-500 italic py-1">No stock currently recorded.</p>
+                                <p className="text-xs text-gray-400 italic py-1">No stock currently recorded.</p>
                               )}
                             </div>
                           </div>
@@ -326,16 +322,16 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
 
       {/* Modal: Create New Product */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 relative">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-white border border-gray-200 rounded-2xl shadow-2xl p-6 relative">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
               <div className="flex items-center gap-2">
-                <Package className="w-5 h-5 text-purple-400" />
-                <h3 className="text-base font-bold text-white">Create New Product</h3>
+                <Package className="w-5 h-5 text-[#0FA974]" />
+                <h3 className="text-base font-bold text-gray-900">Create New Product</h3>
               </div>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="text-slate-400 hover:text-white"
+                className="text-gray-400 hover:text-gray-700"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -343,35 +339,35 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
 
             <form onSubmit={handleCreateSubmit} className="space-y-4 text-xs">
               <div>
-                <label className="block font-medium text-slate-300 mb-1">Product Name *</label>
+                <label className="block font-medium text-gray-700 mb-1">Product Name *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Steel Rods 12mm"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0FA974]/20 focus:border-[#0FA974]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-medium text-slate-300 mb-1">SKU / Item Code *</label>
+                  <label className="block font-medium text-gray-700 mb-1">SKU / Item Code *</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. STL-12MM"
                     value={formData.sku}
                     onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white uppercase focus:outline-none focus:border-purple-500"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-gray-900 uppercase focus:outline-none focus:ring-2 focus:ring-[#0FA974]/20 focus:border-[#0FA974]"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-300 mb-1">Category *</label>
+                  <label className="block font-medium text-gray-700 mb-1">Category *</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500 cursor-pointer"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0FA974]/20 focus:border-[#0FA974] cursor-pointer"
                   >
                     <option value="Raw Materials">Raw Materials</option>
                     <option value="Finished Goods">Finished Goods</option>
@@ -384,48 +380,48 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-medium text-slate-300 mb-1">Unit of Measure (UoM) *</label>
+                  <label className="block font-medium text-gray-700 mb-1">Unit of Measure (UoM) *</label>
                   <input
                     type="text"
                     required
                     placeholder="Units, kg, Boxes, Liters"
                     value={formData.uom}
                     onChange={(e) => setFormData({ ...formData, uom: e.target.value })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0FA974]/20 focus:border-[#0FA974]"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-300 mb-1">Min Stock Reorder Level</label>
+                  <label className="block font-medium text-gray-700 mb-1">Min Stock Reorder Level</label>
                   <input
                     type="number"
                     min="0"
                     value={formData.minStock}
                     onChange={(e) => setFormData({ ...formData, minStock: Number(e.target.value) })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0FA974]/20 focus:border-[#0FA974]"
                   />
                 </div>
               </div>
 
               {/* Initial Stock (Optional) */}
-              <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700 space-y-2">
-                <p className="font-semibold text-purple-300">Initial Stock (Optional)</p>
+              <div className="p-3 rounded-xl bg-gray-50 border border-gray-200 space-y-2">
+                <p className="font-semibold text-gray-800">Initial Stock (Optional)</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-slate-400 mb-1">Initial Quantity</label>
+                    <label className="block text-gray-500 mb-1">Initial Quantity</label>
                     <input
                       type="number"
                       min="0"
                       value={formData.initialStock}
                       onChange={(e) => setFormData({ ...formData, initialStock: Number(e.target.value) })}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:border-purple-500"
+                      className="w-full bg-white border border-gray-200 rounded-xl px-3 py-1.5 text-gray-900 focus:outline-none focus:border-[#0FA974]"
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-400 mb-1">Initial Location</label>
+                    <label className="block text-gray-500 mb-1">Initial Location</label>
                     <select
                       value={formData.initialLocationId}
                       onChange={(e) => setFormData({ ...formData, initialLocationId: e.target.value })}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:border-purple-500 cursor-pointer"
+                      className="w-full bg-white border border-gray-200 rounded-xl px-3 py-1.5 text-gray-900 focus:outline-none focus:border-[#0FA974] cursor-pointer"
                     >
                       {locations
                         .filter((l) => l.type === "INTERNAL")
@@ -440,29 +436,29 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
               </div>
 
               <div>
-                <label className="block font-medium text-slate-300 mb-1">Description</label>
+                <label className="block font-medium text-gray-700 mb-1">Description</label>
                 <textarea
                   rows={2}
                   placeholder="Optional details, specifications or notes..."
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0FA974]/20 focus:border-[#0FA974]"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+              <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium"
+                  className="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-md shadow-purple-900/30"
+                  className="px-4 py-2 rounded-xl bg-[#0FA974] hover:bg-[#0d9264] text-white text-xs font-semibold shadow-sm"
                 >
-                  Create Product
+                  Save Product
                 </button>
               </div>
             </form>
@@ -470,18 +466,18 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
         </div>
       )}
 
-      {/* Modal: Edit Product & Reorder Rules */}
+      {/* Modal: Edit Product */}
       {editingProduct && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 relative">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-white border border-gray-200 rounded-2xl shadow-2xl p-6 relative">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
               <div className="flex items-center gap-2">
-                <Edit2 className="w-5 h-5 text-purple-400" />
-                <h3 className="text-base font-bold text-white">Edit Product: {editingProduct.name}</h3>
+                <Edit2 className="w-5 h-5 text-[#0FA974]" />
+                <h3 className="text-base font-bold text-gray-900">Edit Product: {editingProduct.name}</h3>
               </div>
               <button
                 onClick={() => setEditingProduct(null)}
-                className="text-slate-400 hover:text-white"
+                className="text-gray-400 hover:text-gray-700"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -489,33 +485,33 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
 
             <form onSubmit={handleEditSubmit} className="space-y-4 text-xs">
               <div>
-                <label className="block font-medium text-slate-300 mb-1">Product Name</label>
+                <label className="block font-medium text-gray-700 mb-1">Product Name</label>
                 <input
                   type="text"
                   required
                   value={editingProduct.name}
                   onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0FA974]/20 focus:border-[#0FA974]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-medium text-slate-300 mb-1">SKU / Item Code</label>
+                  <label className="block font-medium text-gray-700 mb-1">SKU</label>
                   <input
                     type="text"
                     required
                     value={editingProduct.sku}
                     onChange={(e) => setEditingProduct({ ...editingProduct, sku: e.target.value })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white uppercase focus:outline-none focus:border-purple-500"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-gray-900 uppercase focus:outline-none focus:ring-2 focus:ring-[#0FA974]/20 focus:border-[#0FA974]"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-300 mb-1">Category</label>
+                  <label className="block font-medium text-gray-700 mb-1">Category</label>
                   <select
                     value={editingProduct.category}
                     onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500 cursor-pointer"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0FA974]/20 focus:border-[#0FA974] cursor-pointer"
                   >
                     <option value="Raw Materials">Raw Materials</option>
                     <option value="Finished Goods">Finished Goods</option>
@@ -528,51 +524,52 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-medium text-slate-300 mb-1">Unit of Measure (UoM)</label>
+                  <label className="block font-medium text-gray-700 mb-1">Unit of Measure</label>
                   <input
                     type="text"
                     required
                     value={editingProduct.uom}
                     onChange={(e) => setEditingProduct({ ...editingProduct, uom: e.target.value })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0FA974]/20 focus:border-[#0FA974]"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-300 mb-1">Reorder Threshold (Min Stock)</label>
+                  <label className="block font-medium text-gray-700 mb-1">Min Stock Reorder Level</label>
                   <input
                     type="number"
                     min="0"
                     value={editingProduct.minStock}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, minStock: Number(e.target.value) })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500"
+                    onChange={(e) =>
+                      setEditingProduct({ ...editingProduct, minStock: Number(e.target.value) })
+                    }
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0FA974]/20 focus:border-[#0FA974]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-medium text-slate-300 mb-1">Description</label>
+                <label className="block font-medium text-gray-700 mb-1">Description</label>
                 <textarea
                   rows={2}
                   value={editingProduct.description || ""}
                   onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0FA974]/20 focus:border-[#0FA974]"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+              <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
                 <button
                   type="button"
                   onClick={() => setEditingProduct(null)}
-                  className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium"
+                  className="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-md shadow-purple-900/30 flex items-center gap-1.5"
+                  className="px-4 py-2 rounded-xl bg-[#0FA974] hover:bg-[#0d9264] text-white text-xs font-semibold shadow-sm"
                 >
-                  <Check className="w-3.5 h-3.5" />
-                  <span>Save Changes</span>
+                  Save Changes
                 </button>
               </div>
             </form>

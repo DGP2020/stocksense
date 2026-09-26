@@ -1,20 +1,18 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
-  Package,
-  AlertTriangle,
-  ArrowDownLeft,
-  ArrowUpRight,
-  ArrowLeftRight,
-  SlidersHorizontal,
-  CheckCircle2,
-  Clock,
-  Check,
   Search,
+  Filter,
+  Plus,
+  ArrowUpRight,
+  ArrowDownRight,
+  Check,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  SlidersHorizontal,
   RotateCcw,
-  Sparkles,
-  ExternalLink,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import {
@@ -46,464 +44,511 @@ interface DashboardViewProps {
   onOpenDemo: () => void;
 }
 
+// Dot matrix visual helper matching the reference image cards
+const DotMatrix: React.FC<{ activeColor: string }> = ({ activeColor }) => {
+  const columns = [
+    [true, false, false],
+    [true, true, false],
+    [true, true, true],
+    [true, true, false],
+    [true, true, true],
+    [true, true, true],
+    [true, true, false],
+  ];
+
+  return (
+    <div className="flex gap-1.5 items-end">
+      {columns.map((col, i) => (
+        <div key={i} className="flex flex-col-reverse gap-1.5">
+          {col.map((active, j) => (
+            <span
+              key={j}
+              className={`w-2 h-2 rounded-full transition-all ${
+                active ? activeColor : "bg-gray-100"
+              }`}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 export const DashboardView: React.FC<DashboardViewProps> = ({
   kpis,
   operations,
-  warehouses: _warehouses,
-  locations,
+  locations: _locations,
   selectedDocType,
   onSelectDocType,
   selectedStatus,
   onSelectStatus,
-  selectedLocationId,
-  onSelectLocationId,
-  selectedCategory,
-  onSelectCategory,
+  selectedLocationId: _selectedLocationId,
+  onSelectLocationId: _onSelectLocationId,
+  selectedCategory: _selectedCategory,
+  onSelectCategory: _onSelectCategory,
   onValidateOperation,
   onNavigateTab,
   onOpenNewOperation,
-  onOpenDemo,
+  onOpenDemo: _onOpenDemo,
 }) => {
-  const categories = ["ALL", "Raw Materials", "Finished Goods", "Furniture", "Electronics", "Fasteners"];
-
-  const triggerConfetti = () => {
-    try {
-      confetti({
-        particleCount: 60,
-        spread: 70,
-        origin: { y: 0.7 },
-        colors: ["#714B67", "#017E84", "#10B981", "#F59E0B"],
-      });
-    } catch {
-      // safe fallback
-    }
-  };
+  const [tableSearch, setTableSearch] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 8;
 
   const handleValidate = async (id: string) => {
     await onValidateOperation(id);
-    triggerConfetti();
+    try {
+      confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: ["#0FA974", "#059669", "#10B981"],
+      });
+    } catch {}
+  };
+
+  const filteredOps = operations.filter((op) => {
+    if (!tableSearch) return true;
+    const q = tableSearch.toLowerCase();
+    const inRef = op.reference.toLowerCase().includes(q);
+    const inPartner = (op.partnerName || "").toLowerCase().includes(q);
+    const inMoves = op.moves.some(
+      (m) =>
+        (m.productName || "").toLowerCase().includes(q) ||
+        (m.productSku || "").toLowerCase().includes(q)
+    );
+    return inRef || inPartner || inMoves;
+  });
+
+  const totalPages = Math.ceil(filteredOps.length / pageSize) || 1;
+  const pagedOps = filteredOps.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === pagedOps.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(pagedOps.map((o) => o.id));
+    }
+  };
+
+  const toggleSelectRow = (id: string) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter((x) => x !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
+    }
+  };
+
+  // Avatar generator helper
+  const getAvatarColor = (name: string) => {
+    const colors = [
+      "from-emerald-500 to-teal-700",
+      "from-blue-500 to-indigo-700",
+      "from-purple-500 to-pink-700",
+      "from-amber-500 to-orange-700",
+      "from-rose-500 to-red-700",
+    ];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return colors[Math.abs(hash) % colors.length];
   };
 
   return (
     <div className="space-y-6">
-      {/* Welcome Banner with Odoo Hackathon Highlight */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-900/60 via-slate-900/90 to-teal-900/50 border border-purple-500/20 p-6 shadow-xl">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-semibold mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>Odoo Hackathon 8-Hour IMS Sprint</span>
-            </div>
-            <h2 className="text-2xl font-bold text-white tracking-tight">
-              Real-Time Inventory Operations
-            </h2>
-            <p className="text-sm text-slate-300 max-w-2xl mt-1">
-              Double-entry ledger-backed movements across warehouses, production racks, and dispatch bays. Complete with atomic validations, stock reconciliation, and audit trail.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <button
-              onClick={() => onOpenNewOperation("RECEIPT")}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold shadow-lg shadow-teal-950/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <ArrowDownLeft className="w-4 h-4" />
-              <span>Receive Goods</span>
-            </button>
-            <button
-              onClick={() => onOpenNewOperation("DELIVERY")}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-lg shadow-purple-950/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <ArrowUpRight className="w-4 h-4" />
-              <span>New Delivery</span>
-            </button>
-            <button
-              onClick={() => onOpenNewOperation("INTERNAL_TRANSFER")}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-all hover:scale-[1.02]"
-            >
-              <ArrowLeftRight className="w-4 h-4 text-purple-400" />
-              <span>Transfer</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* KPI Cards Grid (5 Specified Dashboard KPIs) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {/* 1. Total Products in Stock */}
-        <div
-          onClick={() => onNavigateTab("products")}
-          className="group cursor-pointer p-4 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-purple-500/50 hover:bg-slate-900 transition-all duration-200 shadow-md relative overflow-hidden"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400">Total Products</span>
-            <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
-              <Package className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <span className="text-2xl font-bold text-white tracking-tight">
-              {kpis ? kpis.totalProductsCount : "--"}
-            </span>
-            <span className="text-xs text-slate-500 ml-1.5">SKUs</span>
-          </div>
-          <div className="mt-1 flex items-center justify-between text-[11px] text-slate-400">
-            <span>Units on hand</span>
-            <span className="font-semibold text-purple-300">
-              {kpis ? kpis.totalQuantityInStock.toLocaleString() : "--"}
-            </span>
-          </div>
+      {/* Title & Top Action Buttons matching Interoly */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-bold text-gray-900 tracking-tight">
+            All Inventory Operations
+          </h1>
         </div>
 
-        {/* 2. Low Stock / Out of Stock Items */}
-        <div
-          onClick={() => onNavigateTab("products")}
-          className="group cursor-pointer p-4 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/50 hover:bg-slate-900 transition-all duration-200 shadow-md relative overflow-hidden"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400">Stock Alerts</span>
-            <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-transform">
-              <AlertTriangle className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-amber-300 tracking-tight">
-              {kpis ? kpis.lowStockCount : "--"}
-            </span>
-            <span className="text-xs text-amber-400/80">Low</span>
-            <span className="text-xs text-slate-600">|</span>
-            <span className="text-base font-bold text-rose-400">
-              {kpis ? kpis.outOfStockCount : "--"}
-            </span>
-            <span className="text-xs text-rose-400/80">Out</span>
-          </div>
-          <div className="mt-1 text-[11px] text-slate-400">
-            Automated reorder triggers
-          </div>
-        </div>
-
-        {/* 3. Pending Receipts */}
-        <div
-          onClick={() => onNavigateTab("receipts")}
-          className="group cursor-pointer p-4 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-teal-500/50 hover:bg-slate-900 transition-all duration-200 shadow-md relative overflow-hidden"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400">Pending Receipts</span>
-            <div className="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 group-hover:scale-110 transition-transform">
-              <ArrowDownLeft className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <span className="text-2xl font-bold text-teal-300 tracking-tight">
-              {kpis ? kpis.pendingReceiptsCount : "--"}
-            </span>
-            <span className="text-xs text-slate-500 ml-1.5">Inbound</span>
-          </div>
-          <div className="mt-1 text-[11px] text-teal-400/80 flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            <span>Ready to validate</span>
-          </div>
-        </div>
-
-        {/* 4. Pending Deliveries */}
-        <div
-          onClick={() => onNavigateTab("deliveries")}
-          className="group cursor-pointer p-4 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-purple-500/50 hover:bg-slate-900 transition-all duration-200 shadow-md relative overflow-hidden"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400">Pending Deliveries</span>
-            <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
-              <ArrowUpRight className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <span className="text-2xl font-bold text-purple-300 tracking-tight">
-              {kpis ? kpis.pendingDeliveriesCount : "--"}
-            </span>
-            <span className="text-xs text-slate-500 ml-1.5">Outbound</span>
-          </div>
-          <div className="mt-1 text-[11px] text-purple-400/80 flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            <span>Pick & Pack orders</span>
-          </div>
-        </div>
-
-        {/* 5. Internal Transfers Scheduled */}
-        <div
-          onClick={() => onNavigateTab("transfers")}
-          className="group cursor-pointer p-4 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-900 transition-all duration-200 shadow-md relative overflow-hidden"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400">Internal Transfers</span>
-            <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
-              <ArrowLeftRight className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <span className="text-2xl font-bold text-cyan-300 tracking-tight">
-              {kpis ? kpis.scheduledTransfersCount : "--"}
-            </span>
-            <span className="text-xs text-slate-500 ml-1.5">Scheduled</span>
-          </div>
-          <div className="mt-1 text-[11px] text-cyan-400/80 flex items-center gap-1">
-            <ArrowLeftRight className="w-3 h-3" />
-            <span>Floor relocations</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Dynamic Filters Bar */}
-      <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-200 uppercase tracking-wider">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-purple-400" />
-            <span>Dynamic Operation Filters</span>
-          </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => onNavigateTab("receipts")}
+            className="px-4 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-semibold text-gray-700 transition-colors shadow-sm"
+          >
+            In Transit Receives
+          </button>
 
           <button
-            onClick={() => {
-              onSelectDocType("ALL");
-              onSelectStatus("ALL");
-              onSelectLocationId("ALL");
-              onSelectCategory("ALL");
-            }}
-            className="text-[11px] text-slate-400 hover:text-white flex items-center gap-1"
+            onClick={() => onOpenNewOperation("RECEIPT")}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0FA974] hover:bg-[#0c8f62] text-white text-xs font-semibold shadow-sm transition-all hover:shadow hover:scale-[1.02] active:scale-[0.98]"
           >
-            <RotateCcw className="w-3 h-3" />
-            <span>Reset Filters</span>
+            <Plus className="w-4 h-4" />
+            <span>Add New</span>
           </button>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-          {/* Filter 1: By Document Type */}
+      {/* 4 KPI Metric Stat Cards matching Interoly template */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1: Total Products in Stock */}
+        <div
+          onClick={() => onNavigateTab("products")}
+          className="p-5 rounded-2xl bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+        >
           <div>
-            <label className="block text-[11px] font-medium text-slate-400 mb-1">
-              Document Type
-            </label>
-            <select
-              value={selectedDocType}
-              onChange={(e) => onSelectDocType(e.target.value as any)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-purple-500 cursor-pointer"
-            >
-              <option value="ALL">All Document Types</option>
-              <option value="RECEIPT">Receipts (Incoming)</option>
-              <option value="DELIVERY">Delivery Orders (Outgoing)</option>
-              <option value="INTERNAL_TRANSFER">Internal Transfers</option>
-              <option value="ADJUSTMENT">Inventory Adjustments</option>
-            </select>
+            <span className="text-xs font-medium text-gray-500">Total Products in Stock</span>
+            <div className="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight">
+              {kpis ? kpis.totalQuantityInStock : "--"}
+            </div>
           </div>
 
-          {/* Filter 2: By Status */}
+          <div className="mt-4 flex items-end justify-between">
+            <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+              <ArrowUpRight className="w-3.5 h-3.5" />
+              <span>{kpis ? kpis.totalProductsCount : 0} SKUs</span>
+            </div>
+
+            <DotMatrix activeColor="bg-[#0FA974]" />
+          </div>
+        </div>
+
+        {/* Card 2: Pending Receipts */}
+        <div
+          onClick={() => onNavigateTab("receipts")}
+          className="p-5 rounded-2xl bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+        >
           <div>
-            <label className="block text-[11px] font-medium text-slate-400 mb-1">
-              Status
-            </label>
-            <select
-              value={selectedStatus}
-              onChange={(e) => onSelectStatus(e.target.value as any)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-purple-500 cursor-pointer"
-            >
-              <option value="ALL">All Statuses</option>
-              <option value="DRAFT">Draft</option>
-              <option value="WAITING">Waiting</option>
-              <option value="READY">Ready</option>
-              <option value="DONE">Done</option>
-              <option value="CANCELED">Canceled</option>
-            </select>
+            <span className="text-xs font-medium text-gray-500">Pending Receipts</span>
+            <div className="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight">
+              {kpis ? kpis.pendingReceiptsCount : "--"}
+            </div>
           </div>
 
-          {/* Filter 3: By Warehouse / Location */}
+          <div className="mt-4 flex items-end justify-between">
+            <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+              <ArrowUpRight className="w-3.5 h-3.5" />
+              <span>Inbound</span>
+            </div>
+
+            <DotMatrix activeColor="bg-[#3B82F6]" />
+          </div>
+        </div>
+
+        {/* Card 3: Pending Deliveries */}
+        <div
+          onClick={() => onNavigateTab("deliveries")}
+          className="p-5 rounded-2xl bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+        >
           <div>
-            <label className="block text-[11px] font-medium text-slate-400 mb-1">
-              Warehouse / Location
-            </label>
-            <select
-              value={selectedLocationId}
-              onChange={(e) => onSelectLocationId(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-purple-500 cursor-pointer"
-            >
-              <option value="ALL">All Internal Locations</option>
-              {locations
-                .filter((l) => l.type === "INTERNAL")
-                .map((loc) => (
-                  <option key={loc.id} value={loc.id}>
-                    {loc.name}
-                  </option>
-                ))}
-            </select>
+            <span className="text-xs font-medium text-gray-500">Pending Deliveries</span>
+            <div className="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight">
+              {kpis ? kpis.pendingDeliveriesCount : "--"}
+            </div>
           </div>
 
-          {/* Filter 4: By Product Category */}
+          <div className="mt-4 flex items-end justify-between">
+            <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">
+              <ArrowUpRight className="w-3.5 h-3.5" />
+              <span>Pick & Pack</span>
+            </div>
+
+            <DotMatrix activeColor="bg-[#F59E0B]" />
+          </div>
+        </div>
+
+        {/* Card 4: Low Stock / Out of Stock Items */}
+        <div
+          onClick={() => onNavigateTab("products")}
+          className="p-5 rounded-2xl bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+        >
           <div>
-            <label className="block text-[11px] font-medium text-slate-400 mb-1">
-              Product Category
-            </label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => onSelectCategory(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-purple-500 cursor-pointer"
-            >
-              {categories.map((c) => (
-                <option key={c} value={c}>
-                  {c === "ALL" ? "All Categories" : c}
-                </option>
-              ))}
-            </select>
+            <span className="text-xs font-medium text-gray-500">Stock Reorder Alerts</span>
+            <div className="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight">
+              {kpis ? kpis.lowStockCount : "--"}
+            </div>
+          </div>
+
+          <div className="mt-4 flex items-end justify-between">
+            <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100">
+              <ArrowDownRight className="w-3.5 h-3.5" />
+              <span>{kpis?.outOfStockCount || 0} Out</span>
+            </div>
+
+            <DotMatrix activeColor="bg-[#EF4444]" />
           </div>
         </div>
       </div>
 
-      {/* Operations Activity Table */}
-      <div className="rounded-xl bg-slate-900 border border-slate-800 overflow-hidden shadow-xl">
-        <div className="p-4 border-b border-slate-800 flex items-center justify-between flex-wrap gap-3">
-          <div>
-            <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
-              <span>Operations Ledger Feed</span>
-              <span className="text-xs font-normal text-slate-400">
-                ({operations.length} {operations.length === 1 ? "operation" : "operations"})
-              </span>
-            </h3>
-            <p className="text-xs text-slate-400">
-              Real-time records of receipts, deliveries, transfers, and inventory adjustments.
-            </p>
+      {/* Main Table Card matching Interoly template */}
+      <div className="rounded-2xl bg-white border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
+        {/* Table Top Toolbar */}
+        <div className="p-4 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap">
+          {/* Search Input */}
+          <div className="relative w-64">
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search..."
+              value={tableSearch}
+              onChange={(e) => setTableSearch(e.target.value)}
+              className="w-full pl-9 pr-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#0FA974] transition-all"
+            />
           </div>
 
+          {/* Filter By Button */}
           <div className="flex items-center gap-2">
             <button
-              onClick={onOpenDemo}
-              className="px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-medium flex items-center gap-1.5 transition-colors"
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-medium transition-all ${
+                showFilters || selectedDocType !== "ALL" || selectedStatus !== "ALL"
+                  ? "bg-gray-100 border-gray-300 text-gray-900"
+                  : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+              }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>Simulate Hackathon Scenario</span>
+              <Filter className="w-3.5 h-3.5 text-gray-500" />
+              <span>Filter by</span>
             </button>
           </div>
         </div>
 
-        {operations.length === 0 ? (
-          <div className="p-12 text-center">
-            <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-slate-500 mx-auto mb-3">
-              <Search className="w-6 h-6" />
+        {/* Collapsible Filter Bar */}
+        {showFilters && (
+          <div className="p-4 bg-gray-50/70 border-b border-gray-100 flex items-center gap-4 flex-wrap text-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500 font-medium">Type:</span>
+              <select
+                value={selectedDocType}
+                onChange={(e) => onSelectDocType(e.target.value as any)}
+                className="bg-white border border-gray-200 rounded-lg px-2.5 py-1 text-xs text-gray-800"
+              >
+                <option value="ALL">All Types</option>
+                <option value="RECEIPT">Receipts</option>
+                <option value="DELIVERY">Deliveries</option>
+                <option value="INTERNAL_TRANSFER">Transfers</option>
+                <option value="ADJUSTMENT">Adjustments</option>
+              </select>
             </div>
-            <p className="text-sm font-medium text-slate-300">No operations match your filters</p>
-            <p className="text-xs text-slate-500 mt-1">Try resetting the filters or create a new operation.</p>
+
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500 font-medium">Status:</span>
+              <select
+                value={selectedStatus}
+                onChange={(e) => onSelectStatus(e.target.value as any)}
+                className="bg-white border border-gray-200 rounded-lg px-2.5 py-1 text-xs text-gray-800"
+              >
+                <option value="ALL">All Statuses</option>
+                <option value="WAITING">Waiting</option>
+                <option value="READY">Ready</option>
+                <option value="DONE">Done</option>
+                <option value="DRAFT">Draft</option>
+              </select>
+            </div>
+
+            <button
+              onClick={() => {
+                onSelectDocType("ALL");
+                onSelectStatus("ALL");
+              }}
+              className="text-gray-500 hover:text-gray-900 text-xs flex items-center gap-1 ml-auto"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>Reset</span>
+            </button>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-slate-800 bg-slate-950/60 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
-                  <th className="py-3 px-4">Reference</th>
-                  <th className="py-3 px-4">Type</th>
-                  <th className="py-3 px-4">Partner / Contact</th>
-                  <th className="py-3 px-4">Products & Movements</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Date</th>
-                  <th className="py-3 px-4 text-right">Action</th>
+        )}
+
+        {/* Clean Data Table matching Interoly screenshot */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="border-b border-gray-100 text-gray-400 font-medium text-[11px]">
+                <th className="py-3 px-4 w-10">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.length === pagedOps.length && pagedOps.length > 0}
+                    onChange={toggleSelectAll}
+                    className="rounded border-gray-300 text-[#0FA974] focus:ring-[#0FA974] cursor-pointer"
+                  />
+                </th>
+                <th className="py-3 px-4 font-semibold text-gray-600">Operation Order</th>
+                <th className="py-3 px-4 font-semibold text-gray-600">Date</th>
+                <th className="py-3 px-4 font-semibold text-gray-600">Contact / Partner</th>
+                <th className="py-3 px-4 font-semibold text-gray-600">Reference</th>
+                <th className="py-3 px-4 font-semibold text-gray-600">Items / Product</th>
+                <th className="py-3 px-4 font-semibold text-gray-600">Quantity</th>
+                <th className="py-3 px-4 font-semibold text-gray-600">Status</th>
+                <th className="py-3 px-4 font-semibold text-gray-600 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 text-gray-700">
+              {pagedOps.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="py-12 text-center text-gray-400 italic">
+                    No operations found.
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/80 text-slate-200">
-                {operations.map((op) => {
+              ) : (
+                pagedOps.map((op, idx) => {
+                  const isChecked = selectedIds.includes(op.id);
                   const isDone = op.status === "DONE";
-                  const isReady = op.status === "READY";
-                  const isWaiting = op.status === "WAITING";
+                  const partner = op.partnerName || "Internal Floor";
+                  const avatarColor = getAvatarColor(partner);
+                  const firstMove = op.moves[0];
 
-                  // Type pill styling
-                  let typeBadge = "bg-slate-800 text-slate-300 border-slate-700";
-                  if (op.type === "RECEIPT") typeBadge = "bg-teal-500/15 text-teal-300 border-teal-500/30";
-                  if (op.type === "DELIVERY") typeBadge = "bg-purple-500/15 text-purple-300 border-purple-500/30";
-                  if (op.type === "INTERNAL_TRANSFER") typeBadge = "bg-cyan-500/15 text-cyan-300 border-cyan-500/30";
-                  if (op.type === "ADJUSTMENT") typeBadge = "bg-amber-500/15 text-amber-300 border-amber-500/30";
-
-                  // Status pill styling
-                  let statusBadge = "bg-slate-800 text-slate-400";
-                  if (op.status === "READY") statusBadge = "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30";
-                  if (op.status === "WAITING") statusBadge = "bg-amber-500/15 text-amber-300 border border-amber-500/30";
-                  if (op.status === "DONE") statusBadge = "bg-slate-700/60 text-slate-300 border border-slate-600";
-                  if (op.status === "CANCELED") statusBadge = "bg-rose-500/15 text-rose-300 border border-rose-500/30";
+                  // Status badge matching Interoly style
+                  let statusBadge = "bg-gray-100 text-gray-600 border border-gray-200";
+                  if (op.status === "DONE" || op.status === "READY") {
+                    statusBadge = "bg-[#EAF8F1] text-[#0FA974] border border-[#CDEEDF]";
+                  } else if (op.status === "WAITING") {
+                    statusBadge = "bg-[#FEF7E6] text-[#D97706] border border-[#FEEBC8]";
+                  } else if (op.status === "DRAFT" || op.status === "CANCELED") {
+                    statusBadge = "bg-[#FEECEC] text-[#E02424] border border-[#FCD9D9]";
+                  }
 
                   return (
                     <tr
                       key={op.id}
-                      className="hover:bg-slate-800/40 transition-colors group"
+                      className={`hover:bg-gray-50/80 transition-colors ${
+                        isChecked ? "bg-gray-50/50" : ""
+                      }`}
                     >
-                      {/* Reference */}
-                      <td className="py-3 px-4 font-mono font-semibold text-purple-300 whitespace-nowrap">
+                      {/* Checkbox */}
+                      <td className="py-3.5 px-4">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleSelectRow(op.id)}
+                          className="rounded border-gray-300 text-[#0FA974] focus:ring-[#0FA974] cursor-pointer"
+                        />
+                      </td>
+
+                      {/* Operation Order Code */}
+                      <td className="py-3.5 px-4 font-medium text-[#0FA974] whitespace-nowrap">
                         {op.reference}
                       </td>
 
-                      {/* Type */}
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium border ${typeBadge}`}>
-                          {op.type.replace("_", " ")}
-                        </span>
-                      </td>
-
-                      {/* Partner */}
-                      <td className="py-3 px-4 text-slate-300">
-                        {op.partnerName || (
-                          <span className="text-slate-500 italic">Internal</span>
-                        )}
-                      </td>
-
-                      {/* Products & Movements */}
-                      <td className="py-3 px-4">
-                        <div className="space-y-1">
-                          {op.moves.map((m, idx) => (
-                            <div key={idx} className="flex items-center gap-1.5 flex-wrap">
-                              <span className="font-medium text-white">{m.productName}</span>
-                              <span className="text-slate-400 font-mono text-[11px]">
-                                ({m.quantity > 0 ? `+${m.quantity}` : m.quantity})
-                              </span>
-                              <span className="text-slate-500 text-[10px]">
-                                {m.sourceName} &rarr; {m.destinationName}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </td>
-
-                      {/* Status */}
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <span className={`px-2 py-0.5 rounded text-[11px] font-medium ${statusBadge}`}>
-                          {op.status}
-                        </span>
-                      </td>
-
                       {/* Date */}
-                      <td className="py-3 px-4 text-slate-400 whitespace-nowrap text-[11px]">
-                        {new Date(op.createdAt).toLocaleDateString([], {
+                      <td className="py-3.5 px-4 text-gray-600 whitespace-nowrap">
+                        {new Date(op.createdAt).toLocaleDateString("en-US", {
                           month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
+                          day: "2-digit",
+                          year: "numeric",
                         })}
                       </td>
 
+                      {/* Partner Name with Avatar Circle */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2.5">
+                          <div
+                            className={`w-7 h-7 rounded-full bg-gradient-to-tr ${avatarColor} flex items-center justify-center text-[10px] font-bold text-white shadow-sm flex-shrink-0`}
+                          >
+                            {partner.substring(0, 2).toUpperCase()}
+                          </div>
+                          <span className="font-semibold text-gray-900">{partner}</span>
+                        </div>
+                      </td>
+
+                      {/* Reference Badge (e.g. 1, 2, 3 in pill) */}
+                      <td className="py-3.5 px-4">
+                        <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-lg border border-gray-200 text-gray-600 font-mono text-[11px] font-semibold">
+                          {idx + 1}
+                        </span>
+                      </td>
+
+                      {/* Items / Product */}
+                      <td className="py-3.5 px-4">
+                        <span className="font-medium text-gray-800">
+                          {firstMove?.productName || "Product"}
+                        </span>
+                      </td>
+
+                      {/* Quantity */}
+                      <td className="py-3.5 px-4 font-semibold text-gray-900">
+                        {firstMove?.quantity || 0}
+                      </td>
+
+                      {/* Status Badge */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <span
+                          className={`inline-block px-3 py-1 rounded-xl text-[11px] font-semibold ${statusBadge}`}
+                        >
+                          {op.status === "DONE"
+                            ? "Completed"
+                            : op.status === "WAITING"
+                            ? "Pending"
+                            : op.status === "READY"
+                            ? "Ready"
+                            : "Issued"}
+                        </span>
+                      </td>
+
                       {/* Action */}
-                      <td className="py-3 px-4 text-right whitespace-nowrap">
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         {!isDone && op.status !== "CANCELED" ? (
                           <button
                             onClick={() => handleValidate(op.id)}
-                            className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-950/30 transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5 ml-auto"
-                            title="Validate operation and execute atomic stock shifts"
+                            className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-[#0FA974] hover:bg-[#0c8f62] text-white text-xs font-semibold shadow-sm transition-all hover:scale-105 active:scale-95"
                           >
                             <Check className="w-3.5 h-3.5" />
                             <span>Validate</span>
                           </button>
                         ) : isDone ? (
-                          <span className="inline-flex items-center gap-1 text-slate-400 text-xs">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                            <span>Ledger Updated</span>
+                          <span className="inline-flex items-center gap-1 text-emerald-600 text-xs font-medium">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>Done</span>
                           </span>
                         ) : null}
                       </td>
                     </tr>
                   );
-                })}
-              </tbody>
-            </table>
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Table Footer with Pagination matching Interoly template */}
+        <div className="p-4 border-t border-gray-100 flex items-center justify-between gap-4 flex-wrap text-xs text-gray-500">
+          {/* Pagination Buttons */}
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:pointer-events-none"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
+
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`w-7 h-7 rounded-lg text-xs font-semibold transition-colors ${
+                  currentPage === i + 1
+                    ? "bg-gray-100 text-gray-900 border border-gray-200"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:pointer-events-none"
+            >
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
           </div>
-        )}
+
+          {/* Showing Entries Info */}
+          <div className="flex items-center gap-3">
+            <span>
+              Showing {filteredOps.length > 0 ? (currentPage - 1) * pageSize + 1 : 0} to{" "}
+              {Math.min(currentPage * pageSize, filteredOps.length)} of {filteredOps.length} entries
+            </span>
+
+            <div className="px-2 py-1 rounded-lg border border-gray-200 bg-white font-medium text-gray-700">
+              Show {pageSize} ⌄
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

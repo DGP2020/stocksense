@@ -322,15 +322,15 @@ export default function Home() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-purple-600 selection:text-white">
+    <div className="w-full max-w-[1480px] min-h-[920px] bg-white rounded-[28px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.08)] border border-[#E2E6E3] flex overflow-hidden">
       {/* Toast Notification Banner */}
       {toastMessage && (
-        <div className="fixed top-5 right-5 z-50 animate-bounce">
+        <div className="fixed top-6 right-6 z-50 animate-bounce">
           <div
-            className={`px-4 py-3 rounded-xl shadow-2xl text-xs font-semibold border flex items-center gap-2 ${
+            className={`px-4 py-3 rounded-xl shadow-xl text-xs font-semibold border flex items-center gap-2 bg-white ${
               toastMessage.type === "success"
-                ? "bg-emerald-950 border-emerald-500/50 text-emerald-200"
-                : "bg-purple-950 border-purple-500/50 text-purple-200"
+                ? "border-emerald-500/50 text-emerald-800"
+                : "border-purple-500/50 text-purple-800"
             }`}
           >
             <span>{toastMessage.text}</span>
@@ -350,8 +350,9 @@ export default function Home() {
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 bg-[#FAFCFA]">
         <Header
+          currentRole={currentRole}
           title={tabTitles[currentTab].title}
           subtitle={tabTitles[currentTab].subtitle}
           warehouses={warehouses}
@@ -364,7 +365,7 @@ export default function Home() {
           onNavigateToProducts={() => setCurrentTab("products")}
         />
 
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-6 md:p-8 overflow-y-auto">
           {currentTab === "dashboard" && (
             <DashboardView
               kpis={kpis}

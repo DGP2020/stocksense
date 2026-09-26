@@ -3,10 +3,6 @@
 import React, { useState } from "react";
 import {
   Sparkles,
-  ArrowDownLeft,
-  ArrowLeftRight,
-  ArrowUpRight,
-  SlidersHorizontal,
   CheckCircle2,
   X,
   Play,
@@ -52,7 +48,7 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
         particleCount: 50,
         spread: 60,
         origin: { y: 0.6 },
-        colors: ["#714B67", "#017E84", "#10B981"],
+        colors: ["#0FA974", "#3B82F6", "#F59E0B"],
       });
     } catch {}
   };
@@ -113,7 +109,7 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
     }
   };
 
-  // Step 3: Deliver finished goods: Deliver 20 units -> Stock: -20
+  // Step 3: Deliver 20 kg to Customer
   const executeStep3 = async () => {
     setExecuting(true);
     try {
@@ -122,11 +118,11 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type: "DELIVERY",
-          partnerName: "Metro Corporate Offices",
+          partnerName: "Metro Highrise Construction",
           warehouseId: "wh-1",
-          sourceLocationId: mainStoreLoc?.id || "loc-wh1-stock",
+          sourceLocationId: prodRackLoc?.id || "loc-wh1-prod",
           destinationLocationId: "loc-customer",
-          notes: "Hackathon Demo Step 3: Outbound Finished Goods Delivery",
+          notes: "Hackathon Demo Step 3: Deliver 20 kg finished steel",
           items: [{ productId: steelProd.id, quantity: 20 }],
         }),
       });
@@ -141,12 +137,12 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
     }
   };
 
-  // Step 4: Adjust damaged items: 3 kg steel damaged -> Stock: -3
+  // Step 4: Scrap / Reconcile 3 kg Damaged items via Adjustment
   const executeStep4 = async () => {
     setExecuting(true);
     try {
-      // Current recorded quant in prod rack
-      const currentQuant = steelProd.quants?.find((q) => q.locationId === prodRackLoc?.id)?.quantity || 50;
+      const currentQuant =
+        steelProd?.quants?.find((q) => q.locationId === prodRackLoc?.id)?.quantity || 30;
       const targetCounted = Math.max(0, currentQuant - 3);
 
       await fetch("/api/adjustments", {
@@ -168,24 +164,24 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl p-6 relative space-y-6">
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl bg-white border border-gray-200 rounded-2xl shadow-2xl p-6 relative space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="flex items-center justify-between border-b border-gray-100 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-600 to-amber-500 flex items-center justify-center text-white">
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#0FA974] flex items-center justify-center">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
                 <span>Official Odoo Hackathon 4-Step Scenario</span>
               </h3>
-              <p className="text-xs text-slate-400">
-                Execute the exact inventory lifecycle specified in the PDF prompt.
+              <p className="text-xs text-gray-400">
+                Execute the exact inventory lifecycle specified in the competition problem statement.
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-700">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -196,10 +192,10 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
           <div
             className={`p-4 rounded-xl border transition-all ${
               step1Done
-                ? "bg-slate-950/70 border-emerald-500/40 text-slate-300"
+                ? "bg-[#EAF8F1] border-[#A7F3D0] text-gray-800"
                 : activeStep === 1
-                ? "bg-teal-500/10 border-teal-500/50 text-white"
-                : "bg-slate-800/40 border-slate-700/40 opacity-70"
+                ? "bg-gray-50 border-[#0FA974] text-gray-900"
+                : "bg-gray-50/50 border-gray-200 text-gray-500 opacity-70"
             }`}
           >
             <div className="flex items-center justify-between">
@@ -207,16 +203,16 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
                 <div
                   className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
                     step1Done
-                      ? "bg-emerald-500 text-slate-950"
-                      : "bg-teal-500 text-slate-950"
+                      ? "bg-[#0FA974] text-white"
+                      : "bg-gray-200 text-gray-700"
                   }`}
                 >
                   {step1Done ? <Check className="w-4 h-4" /> : "1"}
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm">Step 1: Receive Goods from Vendor</h4>
-                  <p className="text-slate-400 text-xs mt-0.5">
-                    Receive 100 kg Steel from Vendor &rarr; <span className="text-teal-300 font-semibold font-mono">Stock: +100</span>
+                  <h4 className="font-bold text-sm text-gray-900">Step 1: Receive Goods from Vendor</h4>
+                  <p className="text-gray-500 text-xs mt-0.5">
+                    Receive 100 kg Steel from Vendor &rarr; <span className="text-[#0FA974] font-semibold font-mono">Stock: +100</span>
                   </p>
                 </div>
               </div>
@@ -225,13 +221,13 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
                 <button
                   onClick={executeStep1}
                   disabled={executing}
-                  className="px-3.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold shadow-md flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                  className="px-3.5 py-1.5 rounded-xl bg-[#0FA974] hover:bg-[#0d9264] text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
                   <span>Execute Step 1</span>
                 </button>
               ) : (
-                <span className="text-emerald-400 font-semibold text-xs flex items-center gap-1">
+                <span className="text-[#0FA974] font-semibold text-xs flex items-center gap-1">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Executed & Ledger Logged</span>
                 </span>
@@ -243,10 +239,10 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
           <div
             className={`p-4 rounded-xl border transition-all ${
               step2Done
-                ? "bg-slate-950/70 border-emerald-500/40 text-slate-300"
+                ? "bg-[#EAF8F1] border-[#A7F3D0] text-gray-800"
                 : activeStep === 2
-                ? "bg-purple-500/10 border-purple-500/50 text-white"
-                : "bg-slate-800/40 border-slate-700/40 opacity-70"
+                ? "bg-gray-50 border-[#0FA974] text-gray-900"
+                : "bg-gray-50/50 border-gray-200 text-gray-500 opacity-70"
             }`}
           >
             <div className="flex items-center justify-between">
@@ -254,15 +250,15 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
                 <div
                   className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
                     step2Done
-                      ? "bg-emerald-500 text-slate-950"
-                      : "bg-purple-500 text-white"
+                      ? "bg-[#0FA974] text-white"
+                      : "bg-gray-200 text-gray-700"
                   }`}
                 >
                   {step2Done ? <Check className="w-4 h-4" /> : "2"}
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm">Step 2: Move to Production Rack</h4>
-                  <p className="text-slate-400 text-xs mt-0.5">
+                  <h4 className="font-bold text-sm text-gray-900">Step 2: Move to Production Rack</h4>
+                  <p className="text-gray-500 text-xs mt-0.5">
                     Internal transfer: Main Store &rarr; Production Rack. Total stock unchanged; location updated.
                   </p>
                 </div>
@@ -272,13 +268,13 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
                 <button
                   onClick={executeStep2}
                   disabled={executing || !step1Done}
-                  className="px-3.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-md flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 disabled:opacity-40"
+                  className="px-3.5 py-1.5 rounded-xl bg-[#0FA974] hover:bg-[#0d9264] text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 disabled:opacity-40"
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
                   <span>Execute Step 2</span>
                 </button>
               ) : (
-                <span className="text-emerald-400 font-semibold text-xs flex items-center gap-1">
+                <span className="text-[#0FA974] font-semibold text-xs flex items-center gap-1">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Executed & Ledger Logged</span>
                 </span>
@@ -290,10 +286,10 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
           <div
             className={`p-4 rounded-xl border transition-all ${
               step3Done
-                ? "bg-slate-950/70 border-emerald-500/40 text-slate-300"
+                ? "bg-[#EAF8F1] border-[#A7F3D0] text-gray-800"
                 : activeStep === 3
-                ? "bg-purple-500/10 border-purple-500/50 text-white"
-                : "bg-slate-800/40 border-slate-700/40 opacity-70"
+                ? "bg-gray-50 border-[#0FA974] text-gray-900"
+                : "bg-gray-50/50 border-gray-200 text-gray-500 opacity-70"
             }`}
           >
             <div className="flex items-center justify-between">
@@ -301,16 +297,16 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
                 <div
                   className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
                     step3Done
-                      ? "bg-emerald-500 text-slate-950"
-                      : "bg-purple-500 text-white"
+                      ? "bg-[#0FA974] text-white"
+                      : "bg-gray-200 text-gray-700"
                   }`}
                 >
                   {step3Done ? <Check className="w-4 h-4" /> : "3"}
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm">Step 3: Deliver Finished Goods</h4>
-                  <p className="text-slate-400 text-xs mt-0.5">
-                    Pick, pack, ship to customer &rarr; <span className="text-rose-300 font-semibold font-mono">Stock: -20</span>
+                  <h4 className="font-bold text-sm text-gray-900">Step 3: Deliver Finished Goods</h4>
+                  <p className="text-gray-500 text-xs mt-0.5">
+                    Pick, pack, ship to customer &rarr; <span className="text-rose-600 font-semibold font-mono">Stock: -20</span>
                   </p>
                 </div>
               </div>
@@ -319,13 +315,13 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
                 <button
                   onClick={executeStep3}
                   disabled={executing || !step2Done}
-                  className="px-3.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-md flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 disabled:opacity-40"
+                  className="px-3.5 py-1.5 rounded-xl bg-[#0FA974] hover:bg-[#0d9264] text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 disabled:opacity-40"
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
                   <span>Execute Step 3</span>
                 </button>
               ) : (
-                <span className="text-emerald-400 font-semibold text-xs flex items-center gap-1">
+                <span className="text-[#0FA974] font-semibold text-xs flex items-center gap-1">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Executed & Ledger Logged</span>
                 </span>
@@ -337,10 +333,10 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
           <div
             className={`p-4 rounded-xl border transition-all ${
               step4Done
-                ? "bg-slate-950/70 border-emerald-500/40 text-slate-300"
+                ? "bg-[#EAF8F1] border-[#A7F3D0] text-gray-800"
                 : activeStep === 4
-                ? "bg-amber-500/10 border-amber-500/50 text-white"
-                : "bg-slate-800/40 border-slate-700/40 opacity-70"
+                ? "bg-gray-50 border-[#0FA974] text-gray-900"
+                : "bg-gray-50/50 border-gray-200 text-gray-500 opacity-70"
             }`}
           >
             <div className="flex items-center justify-between">
@@ -348,16 +344,16 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
                 <div
                   className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
                     step4Done
-                      ? "bg-emerald-500 text-slate-950"
-                      : "bg-amber-500 text-slate-950"
+                      ? "bg-[#0FA974] text-white"
+                      : "bg-gray-200 text-gray-700"
                   }`}
                 >
                   {step4Done ? <Check className="w-4 h-4" /> : "4"}
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm">Step 4: Adjust Damaged Items (Physical Count)</h4>
-                  <p className="text-slate-400 text-xs mt-0.5">
-                    3 kg steel damaged &rarr; <span className="text-amber-300 font-semibold font-mono">Stock: -3</span>, logged to Loss account
+                  <h4 className="font-bold text-sm text-gray-900">Step 4: Adjust Damaged Items (Physical Count)</h4>
+                  <p className="text-gray-500 text-xs mt-0.5">
+                    3 kg steel damaged &rarr; <span className="text-amber-600 font-semibold font-mono">Stock: -3</span>, logged to Loss account
                   </p>
                 </div>
               </div>
@@ -366,13 +362,13 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
                 <button
                   onClick={executeStep4}
                   disabled={executing || !step3Done}
-                  className="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-slate-950 text-xs font-bold shadow-md flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 disabled:opacity-40"
+                  className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold shadow-sm flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 disabled:opacity-40"
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
                   <span>Execute Step 4</span>
                 </button>
               ) : (
-                <span className="text-emerald-400 font-semibold text-xs flex items-center gap-1">
+                <span className="text-[#0FA974] font-semibold text-xs flex items-center gap-1">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Completed & Reconciled</span>
                 </span>
@@ -382,7 +378,7 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between pt-3 border-t border-slate-800 text-xs">
+        <div className="flex items-center justify-between pt-3 border-t border-gray-100 text-xs">
           <button
             onClick={() => {
               setStep1Done(false);
@@ -391,7 +387,7 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
               setStep4Done(false);
               setActiveStep(1);
             }}
-            className="text-slate-400 hover:text-white"
+            className="text-gray-400 hover:text-gray-700"
           >
             Restart Walkthrough
           </button>
@@ -402,16 +398,16 @@ export const DemoWalkthroughModal: React.FC<DemoWalkthroughModalProps> = ({
                 onClose();
                 onNavigateToMoves();
               }}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/30 font-semibold flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold flex items-center gap-1.5"
             >
               <History className="w-4 h-4" />
               <span>Inspect Stock Move Ledger</span>
             </button>
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold"
+              className="px-4 py-2 rounded-xl bg-[#0FA974] hover:bg-[#0d9264] text-white font-semibold shadow-sm"
             >
-              Close
+              Done
             </button>
           </div>
         </div>
