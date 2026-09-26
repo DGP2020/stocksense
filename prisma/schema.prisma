@@ -1,0 +1,112 @@
+// Prisma schema blueprint for StockSense IMS
+// Complies with Odoo Hackathon specification
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  MANAGER
+  STAFF
+}
+
+enum OperationType {
+  RECEIPT
+  DELIVERY
+  INTERNAL_TRANSFER
+  ADJUSTMENT
+}
+
+enum OperationStatus {
+  DRAFT
+  WAITING
+  READY
+  DONE
+  CANCELED
+}
+
+enum LocationType {
+  VENDOR
+  CUSTOMER
+  INTERNAL
+  INVENTORY_LOSS
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      Role     @default(STAFF)
+  createdAt DateTime @default(now())
+}
+
+model Warehouse {
+  id        String     @id @default(uuid())
+  name      String
+  code      String     @unique
+  locations Location[]
+}
+
+model Location {
+  id          String       @id @default(uuid())
+  name        String
+  type        LocationType @default(INTERNAL)
+  warehouseId String?
+  warehouse   Warehouse?   @relation(fields: [warehouseId], references: [id])
+  quants      StockQuant[]
+  movesFrom   StockMove[]  @relation("SourceLocation")
+  movesTo     StockMove[]  @relation("DestinationLocation")
+}
+
+model Product {
+  id         String       @id @default(uuid())
+  name       String
+  sku        String       @unique
+  category   String
+  uom        String // Unit of Measure (kg, units, etc.)
+  minStock   Int          @default(10)
+  quants     StockQuant[]
+  stockMoves StockMove[]
+}
+
+model StockQuant {
+  id         String   @id @default(uuid())
+  productId  String
+  locationId String
+  quantity   Float    @default(0)
+  product    Product  @relation(fields: [productId], references: [id])
+  location   Location @relation(fields: [locationId], references: [id])
+
+  @@unique([productId, locationId])
+}
+
+model Operation {
+  id          String          @id @default(uuid())
+  type        OperationType
+  status      OperationStatus @default(DRAFT)
+  reference   String          @unique
+  partnerName String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  moves       StockMove[]
+}
+
+model StockMove {
+  id            String    @id @default(uuid())
+  operationId   String
+  productId     String
+  sourceId      String
+  destinationId String
+  quantity      Float
+  createdAt     DateTime  @default(now())
+  operation     Operation @relation(fields: [operationId], references: [id])
+  product       Product   @relation(fields: [productId], references: [id])
+  source        Location  @relation("SourceLocation", fields: [sourceId], references: [id])
+  destination   Location  @relation("DestinationLocation", fields: [destinationId], references: [id])
+}

@@ -1,3 +1,6 @@
 StockSense.pdf
 *.env
 node_modules/
+.data/
+DELIVERY_GUIDE.md
+.next/
