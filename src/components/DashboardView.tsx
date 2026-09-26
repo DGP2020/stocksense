@@ -2,16 +2,15 @@
 
 import React, { useState } from "react";
 import {
+  Plus,
   Search,
   Filter,
-  Plus,
   ArrowUpRight,
   ArrowDownRight,
   Check,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  SlidersHorizontal,
   RotateCcw,
 } from "lucide-react";
 import confetti from "canvas-confetti";
@@ -57,13 +56,13 @@ const DotMatrix: React.FC<{ activeColor: string }> = ({ activeColor }) => {
   ];
 
   return (
-    <div className="flex gap-1.5 items-end">
+    <div className="flex gap-[6px] items-end">
       {columns.map((col, i) => (
-        <div key={i} className="flex flex-col-reverse gap-1.5">
+        <div key={i} className="flex flex-col-reverse gap-[6px]">
           {col.map((active, j) => (
             <span
               key={j}
-              className={`w-2 h-2 rounded-full transition-all ${
+              className={`w-[6px] h-[6px] rounded-full transition-all ${
                 active ? activeColor : "bg-gray-100"
               }`}
             />
@@ -156,26 +155,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-[24px]">
       {/* Title & Top Action Buttons matching Interoly */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-[18px]">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 tracking-tight">
+          <h1 className="text-[20px] font-bold text-gray-900 tracking-[-0.02em] leading-[24px]">
             All Inventory Operations
           </h1>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-[12px]">
           <button
             onClick={() => onNavigateTab("receipts")}
-            className="px-4 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-semibold text-gray-700 transition-colors shadow-sm"
+            className="px-[18px] py-[6px] rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-semibold text-gray-700 transition-colors shadow-sm"
           >
             In Transit Receives
           </button>
 
           <button
             onClick={() => onOpenNewOperation("RECEIPT")}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0FA974] hover:bg-[#0c8f62] text-white text-xs font-semibold shadow-sm transition-all hover:shadow hover:scale-[1.02] active:scale-[0.98]"
+            className="flex items-center gap-[6px] px-[18px] py-[6px] rounded-xl bg-[#0FA974] hover:bg-[#0c8f62] text-white text-xs font-semibold shadow-sm transition-all hover:shadow hover:scale-[1.02] active:scale-[0.98]"
           >
             <Plus className="w-4 h-4" />
             <span>Add New</span>
@@ -184,21 +183,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* 4 KPI Metric Stat Cards matching Interoly template */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[18px]">
         {/* Card 1: Total Products in Stock */}
         <div
           onClick={() => onNavigateTab("products")}
-          className="p-5 rounded-2xl bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+          className="p-[18px] rounded-2xl bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
         >
           <div>
             <span className="text-xs font-medium text-gray-500">Total Products in Stock</span>
-            <div className="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight">
+            <div className="mt-[6px] text-[28px] font-extrabold text-gray-900 tracking-tight tabular-nums font-mono">
               {kpis ? kpis.totalQuantityInStock : "--"}
             </div>
           </div>
 
-          <div className="mt-4 flex items-end justify-between">
-            <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+          <div className="mt-[18px] flex items-end justify-between">
+            <div className="inline-flex items-center gap-[6px] text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-[12px] py-[3px] rounded-full border border-emerald-100">
               <ArrowUpRight className="w-3.5 h-3.5" />
               <span>{kpis ? kpis.totalProductsCount : 0} SKUs</span>
             </div>
@@ -210,17 +209,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Card 2: Pending Receipts */}
         <div
           onClick={() => onNavigateTab("receipts")}
-          className="p-5 rounded-2xl bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+          className="p-[18px] rounded-2xl bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
         >
           <div>
             <span className="text-xs font-medium text-gray-500">Pending Receipts</span>
-            <div className="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight">
+            <div className="mt-[6px] text-[28px] font-extrabold text-gray-900 tracking-tight tabular-nums font-mono">
               {kpis ? kpis.pendingReceiptsCount : "--"}
             </div>
           </div>
 
-          <div className="mt-4 flex items-end justify-between">
-            <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+          <div className="mt-[18px] flex items-end justify-between">
+            <div className="inline-flex items-center gap-[6px] text-[11px] font-semibold text-blue-600 bg-blue-50 px-[12px] py-[3px] rounded-full border border-blue-100">
               <ArrowUpRight className="w-3.5 h-3.5" />
               <span>Inbound</span>
             </div>
@@ -232,17 +231,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Card 3: Pending Deliveries */}
         <div
           onClick={() => onNavigateTab("deliveries")}
-          className="p-5 rounded-2xl bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+          className="p-[18px] rounded-2xl bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
         >
           <div>
             <span className="text-xs font-medium text-gray-500">Pending Deliveries</span>
-            <div className="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight">
+            <div className="mt-[6px] text-[28px] font-extrabold text-gray-900 tracking-tight tabular-nums font-mono">
               {kpis ? kpis.pendingDeliveriesCount : "--"}
             </div>
           </div>
 
-          <div className="mt-4 flex items-end justify-between">
-            <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">
+          <div className="mt-[18px] flex items-end justify-between">
+            <div className="inline-flex items-center gap-[6px] text-[11px] font-semibold text-amber-600 bg-amber-50 px-[12px] py-[3px] rounded-full border border-amber-100">
               <ArrowUpRight className="w-3.5 h-3.5" />
               <span>Pick & Pack</span>
             </div>
@@ -254,17 +253,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Card 4: Low Stock / Out of Stock Items */}
         <div
           onClick={() => onNavigateTab("products")}
-          className="p-5 rounded-2xl bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+          className="p-[18px] rounded-2xl bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
         >
           <div>
             <span className="text-xs font-medium text-gray-500">Stock Reorder Alerts</span>
-            <div className="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight">
+            <div className="mt-[6px] text-[28px] font-extrabold text-gray-900 tracking-tight tabular-nums font-mono">
               {kpis ? kpis.lowStockCount : "--"}
             </div>
           </div>
 
-          <div className="mt-4 flex items-end justify-between">
-            <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100">
+          <div className="mt-[18px] flex items-end justify-between">
+            <div className="inline-flex items-center gap-[6px] text-[11px] font-semibold text-rose-600 bg-rose-50 px-[12px] py-[3px] rounded-full border border-rose-100">
               <ArrowDownRight className="w-3.5 h-3.5" />
               <span>{kpis?.outOfStockCount || 0} Out</span>
             </div>
@@ -277,24 +276,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* Main Table Card matching Interoly template */}
       <div className="rounded-2xl bg-white border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
         {/* Table Top Toolbar */}
-        <div className="p-4 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap">
+        <div className="p-[18px] border-b border-gray-100 flex items-center justify-between gap-[18px] flex-wrap">
           {/* Search Input */}
           <div className="relative w-64">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search className="w-3.5 h-3.5 absolute left-[12px] top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder="Search..."
               value={tableSearch}
               onChange={(e) => setTableSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#0FA974] transition-all"
+              className="w-full pl-[36px] pr-[12px] py-[6px] bg-white border border-gray-200 rounded-xl text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#0FA974] transition-all"
             />
           </div>
 
           {/* Filter By Button */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-[12px]">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-medium transition-all ${
+              className={`flex items-center gap-[6px] px-[12px] py-[6px] rounded-xl border text-xs font-medium transition-all ${
                 showFilters || selectedDocType !== "ALL" || selectedStatus !== "ALL"
                   ? "bg-gray-100 border-gray-300 text-gray-900"
                   : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
@@ -308,13 +307,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         {/* Collapsible Filter Bar */}
         {showFilters && (
-          <div className="p-4 bg-gray-50/70 border-b border-gray-100 flex items-center gap-4 flex-wrap text-xs">
-            <div className="flex items-center gap-2">
+          <div className="p-[18px] bg-gray-50/70 border-b border-gray-100 flex items-center gap-[18px] flex-wrap text-xs">
+            <div className="flex items-center gap-[6px]">
               <span className="text-gray-500 font-medium">Type:</span>
               <select
                 value={selectedDocType}
                 onChange={(e) => onSelectDocType(e.target.value as any)}
-                className="bg-white border border-gray-200 rounded-lg px-2.5 py-1 text-xs text-gray-800"
+                className="bg-white border border-gray-200 rounded-lg px-[12px] py-[6px] text-xs text-gray-800 cursor-pointer"
               >
                 <option value="ALL">All Types</option>
                 <option value="RECEIPT">Receipts</option>
@@ -324,12 +323,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </select>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-[6px]">
               <span className="text-gray-500 font-medium">Status:</span>
               <select
                 value={selectedStatus}
                 onChange={(e) => onSelectStatus(e.target.value as any)}
-                className="bg-white border border-gray-200 rounded-lg px-2.5 py-1 text-xs text-gray-800"
+                className="bg-white border border-gray-200 rounded-lg px-[12px] py-[6px] text-xs text-gray-800 cursor-pointer"
               >
                 <option value="ALL">All Statuses</option>
                 <option value="WAITING">Waiting</option>
@@ -344,7 +343,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 onSelectDocType("ALL");
                 onSelectStatus("ALL");
               }}
-              className="text-gray-500 hover:text-gray-900 text-xs flex items-center gap-1 ml-auto"
+              className="text-gray-500 hover:text-gray-900 text-xs flex items-center gap-[6px] ml-auto"
             >
               <RotateCcw className="w-3 h-3" />
               <span>Reset</span>
@@ -357,7 +356,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-gray-100 text-gray-400 font-medium text-[11px]">
-                <th className="py-3 px-4 w-10">
+                <th className="py-[12px] px-[18px] w-10">
                   <input
                     type="checkbox"
                     checked={selectedIds.length === pagedOps.length && pagedOps.length > 0}
@@ -365,20 +364,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     className="rounded border-gray-300 text-[#0FA974] focus:ring-[#0FA974] cursor-pointer"
                   />
                 </th>
-                <th className="py-3 px-4 font-semibold text-gray-600">Operation Order</th>
-                <th className="py-3 px-4 font-semibold text-gray-600">Date</th>
-                <th className="py-3 px-4 font-semibold text-gray-600">Contact / Partner</th>
-                <th className="py-3 px-4 font-semibold text-gray-600">Reference</th>
-                <th className="py-3 px-4 font-semibold text-gray-600">Items / Product</th>
-                <th className="py-3 px-4 font-semibold text-gray-600">Quantity</th>
-                <th className="py-3 px-4 font-semibold text-gray-600">Status</th>
-                <th className="py-3 px-4 font-semibold text-gray-600 text-right">Action</th>
+                <th className="py-[12px] px-[18px] font-semibold text-gray-600">Operation Order</th>
+                <th className="py-[12px] px-[18px] font-semibold text-gray-600">Date</th>
+                <th className="py-[12px] px-[18px] font-semibold text-gray-600">Contact / Partner</th>
+                <th className="py-[12px] px-[18px] font-semibold text-gray-600">Reference</th>
+                <th className="py-[12px] px-[18px] font-semibold text-gray-600">Items / Product</th>
+                <th className="py-[12px] px-[18px] font-semibold text-gray-600">Quantity</th>
+                <th className="py-[12px] px-[18px] font-semibold text-gray-600">Status</th>
+                <th className="py-[12px] px-[18px] font-semibold text-gray-600 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 text-gray-700">
               {pagedOps.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-12 text-center text-gray-400 italic">
+                  <td colSpan={9} className="py-[48px] text-center text-gray-400 italic">
                     No operations found.
                   </td>
                 </tr>
@@ -408,7 +407,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       }`}
                     >
                       {/* Checkbox */}
-                      <td className="py-3.5 px-4">
+                      <td className="py-[12px] px-[18px]">
                         <input
                           type="checkbox"
                           checked={isChecked}
@@ -418,12 +417,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       </td>
 
                       {/* Operation Order Code */}
-                      <td className="py-3.5 px-4 font-medium text-[#0FA974] whitespace-nowrap">
+                      <td className="py-[12px] px-[18px] font-semibold text-[#0FA974] whitespace-nowrap font-mono">
                         {op.reference}
                       </td>
 
                       {/* Date */}
-                      <td className="py-3.5 px-4 text-gray-600 whitespace-nowrap">
+                      <td className="py-[12px] px-[18px] text-gray-600 whitespace-nowrap tabular-nums">
                         {new Date(op.createdAt).toLocaleDateString("en-US", {
                           month: "short",
                           day: "2-digit",
@@ -432,8 +431,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       </td>
 
                       {/* Partner Name with Avatar Circle */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2.5">
+                      <td className="py-[12px] px-[18px] whitespace-nowrap">
+                        <div className="flex items-center gap-[12px]">
                           <div
                             className={`w-7 h-7 rounded-full bg-gradient-to-tr ${avatarColor} flex items-center justify-center text-[10px] font-bold text-white shadow-sm flex-shrink-0`}
                           >
@@ -444,28 +443,28 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       </td>
 
                       {/* Reference Badge (e.g. 1, 2, 3 in pill) */}
-                      <td className="py-3.5 px-4">
-                        <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-lg border border-gray-200 text-gray-600 font-mono text-[11px] font-semibold">
+                      <td className="py-[12px] px-[18px]">
+                        <span className="inline-flex items-center justify-center px-[6px] py-[3px] rounded-lg border border-gray-200 text-gray-600 font-mono text-[11px] font-semibold tabular-nums">
                           {idx + 1}
                         </span>
                       </td>
 
                       {/* Items / Product */}
-                      <td className="py-3.5 px-4">
+                      <td className="py-[12px] px-[18px]">
                         <span className="font-medium text-gray-800">
                           {firstMove?.productName || "Product"}
                         </span>
                       </td>
 
                       {/* Quantity */}
-                      <td className="py-3.5 px-4 font-semibold text-gray-900">
+                      <td className="py-[12px] px-[18px] font-semibold text-gray-900 font-mono tabular-nums">
                         {firstMove?.quantity || 0}
                       </td>
 
                       {/* Status Badge */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
+                      <td className="py-[12px] px-[18px] whitespace-nowrap">
                         <span
-                          className={`inline-block px-3 py-1 rounded-xl text-[11px] font-semibold ${statusBadge}`}
+                          className={`inline-block px-[12px] py-[6px] rounded-xl text-[11px] font-semibold ${statusBadge}`}
                         >
                           {op.status === "DONE"
                             ? "Completed"
@@ -478,17 +477,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       </td>
 
                       {/* Action */}
-                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                      <td className="py-[12px] px-[18px] text-right whitespace-nowrap">
                         {!isDone && op.status !== "CANCELED" ? (
                           <button
                             onClick={() => handleValidate(op.id)}
-                            className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-[#0FA974] hover:bg-[#0c8f62] text-white text-xs font-semibold shadow-sm transition-all hover:scale-105 active:scale-95"
+                            className="inline-flex items-center gap-[6px] px-[12px] py-[6px] rounded-xl bg-[#0FA974] hover:bg-[#0c8f62] text-white text-xs font-semibold shadow-sm transition-all hover:scale-105 active:scale-95"
                           >
                             <Check className="w-3.5 h-3.5" />
                             <span>Validate</span>
                           </button>
                         ) : isDone ? (
-                          <span className="inline-flex items-center gap-1 text-emerald-600 text-xs font-medium">
+                          <span className="inline-flex items-center gap-[6px] text-emerald-600 text-xs font-medium">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                             <span>Done</span>
                           </span>
@@ -503,13 +502,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Table Footer with Pagination matching Interoly template */}
-        <div className="p-4 border-t border-gray-100 flex items-center justify-between gap-4 flex-wrap text-xs text-gray-500">
+        <div className="p-[18px] border-t border-gray-100 flex items-center justify-between gap-[18px] flex-wrap text-xs text-gray-500">
           {/* Pagination Buttons */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-[6px]">
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:pointer-events-none"
+              className="p-[6px] rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:pointer-events-none"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
             </button>
@@ -518,7 +517,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <button
                 key={i}
                 onClick={() => setCurrentPage(i + 1)}
-                className={`w-7 h-7 rounded-lg text-xs font-semibold transition-colors ${
+                className={`w-[30px] h-[30px] rounded-lg text-xs font-semibold transition-colors tabular-nums ${
                   currentPage === i + 1
                     ? "bg-gray-100 text-gray-900 border border-gray-200"
                     : "text-gray-600 hover:bg-gray-50"
@@ -531,20 +530,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:pointer-events-none"
+              className="p-[6px] rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:pointer-events-none"
             >
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
           {/* Showing Entries Info */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-[12px] tabular-nums">
             <span>
               Showing {filteredOps.length > 0 ? (currentPage - 1) * pageSize + 1 : 0} to{" "}
               {Math.min(currentPage * pageSize, filteredOps.length)} of {filteredOps.length} entries
             </span>
 
-            <div className="px-2 py-1 rounded-lg border border-gray-200 bg-white font-medium text-gray-700">
+            <div className="px-[12px] py-[6px] rounded-lg border border-gray-200 bg-white font-medium text-gray-700">
               Show {pageSize} ⌄
             </div>
           </div>

@@ -42,30 +42,30 @@ export const Header: React.FC<HeaderProps> = ({
   const userName = currentRole === "MANAGER" ? "Sarah Jenkins" : "Marcus Vance";
 
   return (
-    <header className="h-16 px-8 flex items-center justify-between border-b border-gray-100 bg-white select-none">
+    <header className="h-[60px] px-[24px] flex items-center justify-between border-b border-gray-100 bg-white select-none">
       {/* Greeting Left */}
-      <div className="flex items-center gap-2">
-        <span className="text-base" role="img" aria-label="sun">
+      <div className="flex items-center gap-[6px]">
+        <span className="text-[15px]" role="img" aria-label="sun">
           ☀️
         </span>
-        <h2 className="text-sm font-bold text-gray-900 tracking-tight">
+        <h2 className="text-[13px] font-bold text-gray-900 tracking-[-0.01em]">
           Hello, {userName}!
         </h2>
       </div>
 
       {/* Actions and Controls Right */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-[12px]">
         {/* Search Input matching template */}
         <div className="relative w-64 md:w-80">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search className="w-4 h-4 absolute left-[12px] top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             placeholder="Search anything"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-10 pr-12 py-2 bg-gray-50/80 hover:bg-gray-50 border border-gray-200/80 rounded-xl text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0FA974]/20 focus:border-[#0FA974] transition-all"
+            className="w-full pl-[36px] pr-[48px] py-[6px] bg-gray-50/80 hover:bg-gray-50 border border-gray-200/80 rounded-xl text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0FA974]/20 focus:border-[#0FA974] transition-all"
           />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-gray-200/60 text-[10px] font-semibold text-gray-500 font-mono">
+          <div className="absolute right-[12px] top-1/2 -translate-y-1/2 flex items-center gap-[3px] px-[6px] py-[3px] rounded bg-gray-200/60 text-[10px] font-semibold text-gray-500 font-mono">
             <span>⌘</span>
             <span>F</span>
           </div>
@@ -73,7 +73,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Warehouse Selector */}
         <div className="relative hidden sm:block">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200/80 bg-white hover:bg-gray-50 text-xs text-gray-700 transition-colors">
+          <div className="flex items-center gap-[6px] px-[12px] py-[6px] rounded-xl border border-gray-200/80 bg-white hover:bg-gray-50 text-xs text-gray-700 transition-colors">
             <Building className="w-3.5 h-3.5 text-gray-500" />
             <select
               value={selectedWarehouseId}
@@ -92,7 +92,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Calendar button matching template */}
         <button
-          className="p-2 rounded-xl border border-gray-200/80 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+          className="p-[8px] rounded-xl border border-gray-200/80 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
           title="Date Filter"
         >
           <Calendar className="w-4 h-4" />
@@ -102,17 +102,17 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="relative">
           <button
             onClick={() => setShowAlertsMenu(!showAlertsMenu)}
-            className="p-2 rounded-xl border border-gray-200/80 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors relative"
+            className="p-[8px] rounded-xl border border-gray-200/80 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors relative"
             title="Notifications"
           >
             <Bell className="w-4 h-4" />
             {totalAlerts > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white" />
+              <span className="absolute top-[6px] right-[6px] w-[6px] h-[6px] rounded-full bg-rose-500 ring-2 ring-white" />
             )}
           </button>
 
           {showAlertsMenu && (
-            <div className="absolute right-0 mt-2 w-80 rounded-2xl bg-white border border-gray-200 shadow-xl p-4 z-50">
+            <div className="absolute right-0 mt-[6px] w-[300px] rounded-2xl bg-white border border-gray-200 shadow-xl p-[18px] z-50">
               <div className="flex items-center justify-between border-b border-gray-100 pb-2 mb-3">
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 text-amber-500" />
